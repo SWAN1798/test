@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="textml; charset=utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0,minimum-scale=1.0,  maximum-scale=1.0, user-scalable=no">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta content="email=no" name="format-detection">
+<script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
+<title>动态加载图片和拍摄视频上传</title>
+<script>
+
+
+// $(document).ready(function() {
+// });
+//动态删除图片函数
+function img_delete(index) {
+var _len = i;
+$("img[id='upload_img" + index + "']").remove(); //删除当前行
+$("#img_input" + index + "").remove();
+$("#but" + index + "").remove();
+i--;
+console.log("删除：当前的i值是" + i);
+for (var x = index, j = _len; x < j; x++) {
+// console.log("当前x" + x + "当前index是" + index);
+var nextTxtVal = $("#upload_img" + (x + 1) + "").attr("src");
+$("#img_input" + (x + 1) + "").replaceWith("<input  type='file' id='img_input" + x + "' style=\"display: none;\" onchange='picSelected(" + x + ")' />");
+$("#upload_img" + (x + 1) + "").replaceWith("<img  style=\"width: 100px;height: 100px;\" id=\"upload_img" + x + "\" onclick='img_append(" + x + ")'  src='" + nextTxtVal + "' >");
+$("#but" + (x + 1) + "").replaceWith("  <input type=\"button\" id=\"but" + x + "\" value=\"删除\" onclick=\"img_delete(" + x + ")\"/>");
+// console.log("当前x" + x)
+}
+}
+
+
+//对隐藏的input进行监听
+function img_append(index) {
+$("#img_input" + index).click();
+}
+var oFile;
+var oImage;
+var i = 1;
+
+
+//照片加载函数
+function picSelected(index) {
+if ($('#img_input' + index).val() == '') {
+return;
+}
+
+oFile = document.getElementById('img_input' + index).files[0];
+var rFilter = /^(image\/bmp|image\/gif|image\/jpeg|image\/png|image\/tiff)$/i;
+if (!rFilter.test(oFile.type)) {
+document.getElementById('error').innerHTML = '选择文件格式错误';
+return;
+}
+oImage = document.getElementById('upload_img' + index);
+var reader = new FileReader();
+//将文件以Data URL形式读入页面  
+reader.readAsDataURL(oFile);
+reader.onload = function(e) {
+//显示文件  
+oImage.src = e.target.result;
+if (index == i) {
+++i;
+$("#div1").append("<input type='file' id='img_input" + i + "' style=\"display: none;\" onchange='picSelected(" + i + ")' />" +
+"<img  style=\"width: 100px;height: 100px;\" id=\"upload_img" + i + "\" onclick='img_append(" + i + ")'  src=\"img/upload.png\" >" + "  <input type=\"button\" id=\"but" + i + "\" value=\"删除\" onclick=\"img_delete(" + i + ")\"/>"
+);
+console.log("增加：当前的i值是" + i);
+}
+}
+}
+
+
+//视频加载函数
+function play() {
+try {
+var file = document.getElementById('v_file').files[0];
+//var url = window.webkitURL.createObjectURL(file);
+//if (window.navigator.userAgent.indexOf("Chrome") >= 1 || window.navigator.userAgent.indexOf("Safari") >= 1) { 
+//var url1 = window.webkitURL.createObjectURL(file); 
+document.getElementById("video_id").src = window.webkitURL.createObjectURL(file);
+} catch (e) {
+alert(e);
+}
+}
+</script>
+</head>
+
+
+<body>
+
+<!--调用手机相册(input中参数请自己补全)或者电脑本地相册-->
+<div id="div1">
+<input type="file" id="img_input1" onchange="picSelected(1)" style="display: none;" accept="image/* " capture="camera" multiple>
+<img id="upload_img1" style="width: 100px; height: 100px;" src="img/upload.png" onclick="img_append(1)">
+<input type="button" id="but1" value="删除" onclick="img_delete(1)" />
+</div>
+<br />
+<br />
+<br />
+<br />
+
+
+<!--视频（ios可以播放，android手机播放地址无效）-->
+<input id="v_file" type="file" accept="video/*" onChange="play()" capture="camcorder" />
+<video width="320" id="video_id" height="240" controls="controls">
+</video>
+
+
+</body>
+</html>
